@@ -91,3 +91,13 @@ This command performs four steps:
 Use SSMS and verify that the database now exists with the tables.
 
 ![](./img/database.png)
+
+**Step 5 - Create the domain service**
+
+The domain service will be responsible for business logic. This will handle querying the database for games, creating new games and modifying existing ones. 
+
+As this app only has a simple domain, I’ll be using InstantGameService to handle all of the requirements, but in your own apps you may have multiple services that cooperate to provide the business logic.
+
+We will also add the service to the dependency injection container in the Startup.ConfigureServices method:. 
+
+```services.AddScoped<InstantGameService>();```
