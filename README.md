@@ -69,3 +69,25 @@ Create the schema by creating your POCO classes and register them with the DBSet
 
 In this case we have instant scratch it game that is valid in one or more jurisdictions. 
 
+**Step 4 - Create database**
+
+To create the actual database we will use the dotnet CLI tool to add a migration step:
+
+```dotnet ef migrations add --project .\InstantScratchIts.Web\InstantScratchIts.Web.csproj InitialSchema```
+
+You can then apply the migration using the following command:
+
+```dotnet ef database update --project .\InstantScratchIts.Web\InstantScratchIts.Web.csproj``` 
+
+This command performs four steps:
+
+1. Builds your application.
+2. Loads the services configured in your app’s Startup class, including AppDb-
+   Context.
+3. Checks whether the database in the AppDbContext connection string exists. If
+   not, creates it.
+4. Updates the database by applying any unapplied migrations.
+
+Use SSMS and verify that the database now exists with the tables.
+
+![](C:\Users\Bengt.Hedberg\source\repos\InstantScratchIts\img\database.png)
