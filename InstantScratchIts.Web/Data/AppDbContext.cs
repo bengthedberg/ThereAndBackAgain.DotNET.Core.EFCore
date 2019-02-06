@@ -8,5 +8,7 @@ namespace InstantScratchIts.Web.Data
             : base(options)
         {
         }
+
+        public DbSet<InstantGame> InstantGames { get; set; }
     }
 }

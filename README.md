@@ -63,5 +63,9 @@ Finish up with a rinse and repeat, i.e build and run :
 
 ```dotnet run -p .\InstantScratchIts.Web\InstantScratchIts.Web.csproj```
 
+**Step 3 - Create a database schema**
 
+Create the schema by creating your POCO classes and register them with the DBSet 
+
+In this case we have instant scratch it game that is valid in one or more jurisdictions. 
 
