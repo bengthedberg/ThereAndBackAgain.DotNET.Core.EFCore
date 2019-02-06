@@ -90,4 +90,4 @@ This command performs four steps:
 
 Use SSMS and verify that the database now exists with the tables.
 
-![](img\database.png)
+![](./img/database.png)
