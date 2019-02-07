@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using InstantScratchIts.Web.Data;
+using InstantScratchIts.Web.Models;
+using System.Linq;
 
 namespace InstantScratchIts.Web.Services
 {
@@ -13,6 +14,20 @@ namespace InstantScratchIts.Web.Services
         {
             _context = context;
             _logger = factory.CreateLogger<InstantGameService>();
+        }
+
+        public ICollection<InstantGamesSummaryViewModel> GetInstantGames()
+        {
+            return _context.InstantGames
+                .Where(r => !r.IsDeleted)
+                .Select(x => new InstantGamesSummaryViewModel
+                {
+                    Id = x.InstantGameId,
+                    GameNo = x.GameNo,
+                    Name = x.Name,
+                    TicketAmount = x.TicketAmount,
+                })
+                .ToList();
         }
     }
 }

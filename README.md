@@ -101,3 +101,117 @@ As this app only has a simple domain, I’ll be using InstantGameService to hand
 We will also add the service to the dependency injection container in the Startup.ConfigureServices method:. 
 
 ```services.AddScoped<InstantGameService>();```
+
+**Step 6 - Read Data**
+
+Lets start with creating a controller for accessing the games. 
+
+``` c#
+namespace InstantScratchIts.Web.Controllers
+{
+    public class InstantGameController : Controller
+    {
+        public InstantGameService _service;
+        public InstantGameController(InstantGameService service)
+        {
+            _service = service;
+        }
+    }
+}
+```
+
+then add a default index action:
+
+```c#
+public IActionResult Index()
+{
+    var models = _service.GetInstantGames();
+
+    return View(models);
+}
+```
+We also need to create the GetInstantGames method which is supposed to return all instant games:
+
+```c#
+public ICollection<InstantGamesSummaryViewModel> GetInstantGames()
+{
+    return _context.InstantGames
+        .Where(r => !r.IsDeleted)
+        .Select(x => new InstantGamesSummaryViewModel
+                {
+                    Id = x.InstantGameId,
+                    GameNo = x.GameNo,
+                    Name = x.Name,
+                    TicketAmount = x.TicketAmount,
+                })
+        .ToList();
+}
+```
+The method will return a view model that can be returned to the client. The view models looks like this:
+
+```c#
+namespace InstantScratchIts.Web.Models
+{
+    public class InstantGamesSummary
+    {
+        public class InstantGamesSummaryViewModel
+        {
+            public int Id { get; set; }
+            public int GameNo { get; set; }
+            public string Name { get; set; }
+            public int NumberOfJurisdictions { get; set; }
+
+            public static InstantGamesSummaryViewModel FromInstantGame(InstantGame instantGame)
+            {
+                return new InstantGamesSummaryViewModel
+                {
+                    Id = instantGame.InstantGameId,
+                    GameNo = instantGame.GameNo,
+                    Name = instantGame.Name,
+                    NumberOfJurisdictions = instantGame.Jurisdiction.Count
+                };
+            }
+        }
+    }
+}
+```
+Finally we just need to create the view:
+
+```html
+@model ICollection<InstantGamesSummaryViewModel>
+@{
+    ViewData["Title"] = "Instant Games";
+}
+
+div class="table-responsive">
+    <table class="table table-striped instantgame">
+        <thead>
+            <tr>
+                <th>Game#</th>
+                <th>Name</th>
+                <th>Ticket Amount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var instantgame in Model)
+            {
+            <tr>
+                <td>@instantgame.GameNo</td>
+                <td>@instantgame.Name</td>
+                <td>@instantgame.TicketAmount</td>
+                <td><a asp-action="View" asp-route-id="@instantgame.Id" class="btn">View</a></td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<a asp-action="Create" class="btn btn-success">Create new Instant Game</a>
+```
+
+Add a menu link the controller in the main layout and you are ready to run. Though lets just add some dummy data in the database first...
+
+![](./img/instantgames.png)
+
+
+
