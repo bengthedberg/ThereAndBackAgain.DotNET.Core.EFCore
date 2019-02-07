@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using InstantScratchIts.Web.Data;
+﻿using InstantScratchIts.Web.Data;
 
 namespace InstantScratchIts.Web.Models
 {

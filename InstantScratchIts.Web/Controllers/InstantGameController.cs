@@ -17,5 +17,18 @@ namespace InstantScratchIts.Web.Controllers
 
             return View(models);
         }
+
+        public IActionResult View(int id)
+        {
+            var model = _service.GetInstantGameDetail(id);
+            if (model == null)
+            {
+                // If id is not for a valid instant game, generate a 404 error page
+                // TODO: Add status code pages middleware to show friendly 404 page
+                return NotFound();
+            }
+            return View(model);
+        }
+
     }
 }

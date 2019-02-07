@@ -213,5 +213,90 @@ Add a menu link the controller in the main layout and you are ready to run. Thou
 
 ![](./img/instantgames.png)
 
+Lets add the view detail functionality as well.
 
+First create the View action on the controller :
+
+```c#
+public IActionResult View(int id)
+{
+    var model = _service.GetInstantGameDetail(id);
+    if (model == null)
+    {
+        // If id is not for a valid instant game, generate a 404 error page
+        // TODO: Add status code pages middleware to show friendly 404 page
+        return NotFound();
+    }
+    return View(model);
+}
+```
+Then add the GetInstantGameDetail method to the service:
+
+```c#
+public InstantGameDetailViewModel GetInstantGameDetail(int id)
+{
+    return _context.InstantGames
+        .Where(x => x.InstantGameId == id)
+        .Where(x => !x.IsDeleted)
+        .Select(x => new InstantGameDetailViewModel
+                {
+                    Id = x.InstantGameId,
+                    Name = x.Name,
+                    TicketAmount = x.TicketAmount,
+                    Jurisdictions = x.Jurisdiction
+                        .Select(region => new InstantGameDetailViewModel.Region
+                                {
+                                    Name = region.Name,
+                                    Allocation = region.Allocation
+                                })
+                })
+        .SingleOrDefault();
+}
+```
+Again we have a new view model
+
+```c#
+public class InstantGameDetailViewModel
+{
+    public int Id { get; set; }
+    public int GameNo { get; set; }
+    public string Name { get; set; }
+    public decimal TicketAmount { get; set; }
+
+    public IEnumerable<Region> Jurisdictions { get; set; }
+
+    public class Region
+    {
+        public string Name { get; set; }
+        public int Allocation { get; set; }
+    }
+}
+```
+Lets add the view for instant game details...
+
+```html
+@model InstantGameDetailViewModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+<h3>Game Details</h3>
+<p>@Model.GameNo - @Model.Name - $@Model.TicketAmount</p>
+<form asp-action="Delete" asp-route-id="@Model.Id">
+    <p>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <button class="btn btn-danger">Delete</button>
+    </p>
+</form>
+
+<h3>Jurisdictions</h3>
+<dl>
+    @foreach (var item in Model.Jurisdictions)
+    {
+        <dt>@item.Name</dt>
+        <dd>@item.Allocation</dd>
+    }
+</dl>
+```
+
+Run and test
 

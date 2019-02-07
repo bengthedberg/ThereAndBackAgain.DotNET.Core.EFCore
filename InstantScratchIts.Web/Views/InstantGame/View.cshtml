@@ -1,0 +1,21 @@
+﻿@model InstantGameDetailViewModel
+@{
+    ViewData["Title"] = Model.Name;
+}
+<h3>Game Details</h3>
+<p>@Model.GameNo - @Model.Name - $@Model.TicketAmount</p>
+<form asp-action="Delete" asp-route-id="@Model.Id">
+    <p>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <button class="btn btn-danger">Delete</button>
+    </p>
+</form>
+
+<h3>Jurisdictions</h3>
+<dl>
+    @foreach (var item in Model.Jurisdictions)
+    {
+        <dt>@item.Name</dt>
+        <dd>@item.Allocation</dd>
+    }
+</dl>

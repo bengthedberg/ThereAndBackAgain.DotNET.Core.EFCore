@@ -29,5 +29,26 @@ namespace InstantScratchIts.Web.Services
                 })
                 .ToList();
         }
+
+        public InstantGameDetailViewModel GetInstantGameDetail(int id)
+        {
+            return _context.InstantGames
+                .Where(x => x.InstantGameId == id)
+                .Where(x => !x.IsDeleted)
+                .Select(x => new InstantGameDetailViewModel
+                {
+                    Id = x.InstantGameId,
+                    GameNo = x.GameNo,
+                    Name = x.Name,
+                    TicketAmount = x.TicketAmount,
+                    Jurisdictions = x.Jurisdiction
+                    .Select(region => new InstantGameDetailViewModel.Region
+                    {
+                        Name = region.Name,
+                        Allocation =region.Allocation
+                    })
+                })
+                .SingleOrDefault();
+        }
     }
 }
