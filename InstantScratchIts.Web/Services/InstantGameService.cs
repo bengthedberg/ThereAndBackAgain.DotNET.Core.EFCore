@@ -50,5 +50,19 @@ namespace InstantScratchIts.Web.Services
                 })
                 .SingleOrDefault();
         }
+
+        public UpdateInstantGameCommand GetInstantGameForUpdate(int id)
+        {
+            return _context.InstantGames
+                .Where(x => x.InstantGameId == id)
+                .Where(x => !x.IsDeleted)
+                .Select(x => new UpdateInstantGameCommand
+                {
+                    Name = x.Name,
+                    GameNo = x.GameNo,
+                    TicketAmount = x.TicketAmount,
+                })
+                .SingleOrDefault();
+        }
     }
 }

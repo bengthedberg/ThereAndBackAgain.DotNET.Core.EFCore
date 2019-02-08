@@ -1,0 +1,23 @@
+﻿@model EditInstantGameBase
+
+<div class="form-group">
+    <label asp-for="Name" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="GameNo" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <textarea asp-for="GameNo" class="form-control"></textarea>
+        <span asp-validation-for="GameNo" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="TicketAmount" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="TicketAmount" class="form-control" />
+        <span asp-validation-for="TicketAmount" class="text-danger"></span>
+    </div>
+</div>

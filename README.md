@@ -300,3 +300,133 @@ Lets add the view for instant game details...
 
 Run and test
 
+**Step 7 - Edit Data**
+
+In the view detail page there is an edit button:
+
+`<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>`
+
+So lets add the Edit action to the controller:
+
+```c#
+public IActionResult Edit(int id)
+{
+    var model = _service.GetInstantGameForUpdate(id);
+    if (model == null)
+    {
+        // If id is not for a valid game, generate a 404 error page
+        // TODO: Add status code pages middleware to show friendly 404 page
+        return NotFound();
+    }
+    return View(model);
+}
+```
+then add the business logic to the service :
+
+```c#
+public UpdateInstantGameCommand GetInstantGameForUpdate(int id)
+{
+    return _context.InstantGames
+        .Where(x => x.InstantGameId == id)
+        .Where(x => !x.IsDeleted)
+        .Select(x => new UpdateInstantGameCommand
+                {
+                    Name = x.Name,
+                    GameNo = x.GameNo,
+                    TicketAmount = x.TicketAmount,
+                })
+        .SingleOrDefault();
+}
+```
+And the command and model :
+
+```c#
+namespace InstantScratchIts.Web.Models
+{
+    public class UpdateInstantGameCommand : EditInstantGameBase
+    {
+        public int Id { get; set; }
+
+        public void UpdateInstantGame(InstantGame game)
+        {
+            game.Name = Name;
+            game.GameNo = GameNo;
+            game.TicketAmount = TicketAmount;
+        }
+    }
+}
+
+```
+​      
+```c#
+namespace InstantScratchIts.Web.Models
+{
+    public class EditInstantGameBase
+    {
+        [Required, StringLength(100)]
+        public string Name { get; set; }
+        [Range(0, 24), DisplayName("Name of the Game")]
+        public int GameNo { get; set; }
+        [Range(1000, 9999), DisplayName("Game Number")]
+        public decimal TicketAmount { get; set; }
+      
+    }
+}
+```
+
+Finally add the view:
+
+
+```html
+@model UpdateInstantGameCommand
+@{
+    ViewData["Title"] = "Edit Instant Game";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<form asp-controller="InstantGame" asp-action="Edit" method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @Html.Partial("_EditInstantGamePartial")
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}
+```
+```html
+@model EditInstantGameBase
+
+<div class="form-group">
+    <label asp-for="Name" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="GameNo" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <textarea asp-for="GameNo" class="form-control"></textarea>
+        <span asp-validation-for="GameNo" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="TicketAmount" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="TicketAmount" class="form-control" />
+        <span asp-validation-for="TicketAmount" class="text-danger"></span>
+    </div>
+</div>
+
+```
+
