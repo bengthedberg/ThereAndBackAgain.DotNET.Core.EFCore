@@ -69,5 +69,13 @@ namespace InstantScratchIts.Web.Controllers
             return View(command);
         }
 
+
+        [HttpPost]
+        public IActionResult Delete(int id)
+        {
+            _service.DeleteInstantGame(id);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

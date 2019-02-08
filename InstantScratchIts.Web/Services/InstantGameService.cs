@@ -75,5 +75,14 @@ namespace InstantScratchIts.Web.Services
             cmd.UpdateInstantGame(game);
             _context.SaveChanges();
         }
+
+        public void DeleteInstantGame(int id)
+        {
+            var game = _context.InstantGames.Find(id);
+            if (game.IsDeleted) { throw new Exception("Unable to delete a deleted game"); }
+
+            game.IsDeleted = true;
+            _context.SaveChanges();
+        }
     }
 }

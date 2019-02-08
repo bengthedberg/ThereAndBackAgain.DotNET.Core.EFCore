@@ -479,3 +479,33 @@ public void UpdateInstantGame(UpdateInstantGameCommand cmd)
     _context.SaveChanges();
 }
 ```
+
+**Step-9 Delete Data**
+
+Lets hook the delete button up on the view details page:
+
+```<form asp-action="Delete" asp-route-id="@Model.Id">```
+
+Again add the delete action to the controller:
+
+```c#
+[HttpPost]
+    public IActionResult Delete(int id)
+    {
+        _service.DeleteInstantGame(id);
+
+        return RedirectToAction(nameof(Index));
+    }
+```
+and  the business logic:
+
+```c#
+public void DeleteInstantGame(int id)
+{
+    var game = _context.InstantGames.Find(id);
+    if (game.IsDeleted) { throw new Exception("Unable to delete a deleted game"); }
+
+    game.IsDeleted = true;
+    _context.SaveChanges();
+}
+```
