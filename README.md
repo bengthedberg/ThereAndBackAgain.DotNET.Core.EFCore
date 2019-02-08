@@ -430,3 +430,52 @@ Finally add the view:
 
 ```
 
+**Step-8 Update Data**
+
+So now we have a form where we can edit data, now we need to save it. 
+
+Same edit action by a post method:
+
+```<form asp-controller="InstantGame" asp-action="Edit" method="post" class="form-horizontal">```
+
+Hence we need to add this to the controller:
+
+```c#
+[HttpPost]
+    public IActionResult Edit(UpdateInstantGameCommand command)
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                _service.UpdateInstantGame(command);
+                return RedirectToAction(nameof(View), new { id = command.Id });
+            }
+        }
+        catch (Exception)
+        {
+            // TODO: Log error
+            // Add a model-level error by using an empty string key
+            ModelState.AddModelError(
+                string.Empty,
+                "An error occured saving the instant game"
+            );
+        }
+
+        //If we got to here, something went wrong
+        return View(command);
+    }
+```
+Then add the UpdateInstantGame method to our service:
+
+```c#
+public void UpdateInstantGame(UpdateInstantGameCommand cmd)
+{
+    var game = _context.InstantGames.Find(cmd.Id);
+    if (game == null) { throw new Exception("Unable to find the instant game"); }
+    if (game.IsDeleted) { throw new Exception("Unable to update a deleted instant game"); }
+
+    cmd.UpdateInstantGame(game);
+    _context.SaveChanges();
+}
+```

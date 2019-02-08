@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using InstantScratchIts.Web.Data;
 using InstantScratchIts.Web.Models;
 using System.Linq;
+using System;
 
 namespace InstantScratchIts.Web.Services
 {
@@ -63,6 +64,16 @@ namespace InstantScratchIts.Web.Services
                     TicketAmount = x.TicketAmount,
                 })
                 .SingleOrDefault();
+        }
+
+        public void UpdateInstantGame(UpdateInstantGameCommand cmd)
+        {
+            var game = _context.InstantGames.Find(cmd.Id);
+            if (game == null) { throw new Exception("Unable to find the instant game"); }
+            if (game.IsDeleted) { throw new Exception("Unable to update a deleted instant game"); }
+
+            cmd.UpdateInstantGame(game);
+            _context.SaveChanges();
         }
     }
 }
