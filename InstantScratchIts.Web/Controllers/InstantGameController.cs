@@ -77,5 +77,35 @@ namespace InstantScratchIts.Web.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult Create()
+        {
+            return View(new CreateInstantGameCommand());
+        }
+
+        [HttpPost]
+        public IActionResult Create(CreateInstantGameCommand command)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var id = _service.CreateInstantGame(command);
+                    return RedirectToAction(nameof(View), new { id = id });
+                }
+            }
+            catch (Exception)
+            {
+                // TODO: Log error
+                // Add a model-level error by using an empty string key
+                ModelState.AddModelError(
+                    string.Empty,
+                    "An error occured saving the game"
+                    );
+            }
+
+            //If we got to here, something went wrong
+            return View(command);
+        }
     }
 }

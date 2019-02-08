@@ -509,3 +509,190 @@ public void DeleteInstantGame(int id)
     _context.SaveChanges();
 }
 ```
+
+**Step 10 - Insert Data**
+
+Finally lets add the create functionality for new games:
+
+On the summary page we have the create button:
+
+```<a asp-action="Create" class="btn btn-success">Create new Instant Game</a>```
+
+Again we go to the controller and add the Create action:
+
+```c#
+public IActionResult Create()
+{
+    return View(new UpdateInstantGameCommand());
+}
+
+[HttpPost]
+        public IActionResult Create(CreateInstantGameCommand command)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var id = _service.CreateInstantGame(command);
+                    return RedirectToAction(nameof(View), new { id = id });
+                }
+            }
+            catch (Exception)
+            {
+                // TODO: Log error
+                // Add a model-level error by using an empty string key
+                ModelState.AddModelError(
+                    string.Empty,
+                    "An error occured saving the game"
+                    );
+            }
+
+            //If we got to here, something went wrong
+            return View(command);
+        }
+```
+The the CreateInstantGame method on the services:
+
+```c#
+    public int CreateInstantGame(CreateInstantGameCommand cmd)
+    {
+        var game = cmd.ToInstantGame();
+        _context.Add(game);
+        _context.SaveChanges();
+        return game.InstantGameId;
+    }
+```
+And some command models :
+
+```c#
+public class CreateInstantGameCommand : EditInstantGameBase
+{
+    public IList<CreateJurisdictionCommand> Regions { get; set; } = new List<CreateJurisdictionCommand>();
+
+    public InstantGame ToInstantGame()
+    {
+        return new InstantGame
+        {
+            Name = Name,
+            GameNo = GameNo,
+            TicketAmount = TicketAmount,
+            Jurisdictions = Regions?.Select(x => x.ToJurisdiction()).ToList()
+        };
+    }
+}
+```
+```c#
+public class CreateJurisdictionCommand
+{
+
+    [Required, StringLength(100)]
+    public string Name { get; set; }
+    [Range(0, int.MaxValue)]
+    public decimal RetailCommissionAmount { get; set; }
+    public DateTime StartSellDate { get; set; }
+    public DateTime StopSellDate { get; set; }
+    public TimeSpan ValidationPeriod  { get; set; }
+    public int Allocation { get; set; }
+
+    public Jurisdiction ToJurisdiction()
+    {
+        return new Jurisdiction
+        {
+            Name = Name,
+            Allocation = Allocation,
+            RetailCommissionAmount = RetailCommissionAmount,
+            StartSellDate = DateTime.Now,
+            StopSellDate = DateTime.Now,
+            ValidationPeriod = TimeSpan.FromHours(12)                
+        };
+    }
+}
+
+```
+
+and a create view to go with that :
+
+
+
+```html
+
+@model CreateInstantGameCommand
+@{
+    ViewData["Title"] = "Create Instant Game";
+}
+
+<h2>@ViewData["Title"]</h2>
+<hr />
+
+<form asp-controller="InstantGame" asp-action="Create" method="post" class="form-horizontal">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @Html.Partial("_EditInstantGamePartial")
+
+    <div class="form-group">
+        @* Creating sub-items like this at the same time as the parent is a PITA unfortunately - hacky JS ensues for now! *@
+        <table class="table table-striped" id="jurisdictions">
+            <thead>
+                <tr>
+                    <th>Jurisdiction</th>
+                    <th>Allocation</th>
+                    <th>Commission</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Regions.Count; i++)
+                {
+                    var ingredient = Model.Regions[i];
+                    <tr>
+                        <td>
+                            <input asp-for="Regions[i].Name" />
+                            <span asp-validation-for="Regions[i].Name" class="text-danger"></span>
+                        </td>
+                        <td>
+                            <input asp-for="Regions[i].Allocation" />
+                            <span asp-validation-for="Regions[i].Allocation" class=" text-danger"></span>
+                        </td>
+                        <td>
+                            <input asp-for="Regions[i].RetailCommissionAmount" />
+                            <span asp-validation-for="Regions[i].RetailCommissionAmount" class=" text-danger"></span>
+                        </td>
+                        <td>
+                            <a href="#" class="remove">Remove</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="button" class="btn btn-success" id="addJurisdiction">Add Jurisdiction</button>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        var jurisdictions = $('#jurisdictions tbody');
+        $("#addJurisdiction").click(function () {
+            var rowNo = jurisdictions.find('tr').length;
+            var template =
+                '<tr>' +
+                '<td><input name="Regions[' + rowNo + '].Name" id="Regions' + rowNo + '_Name" /></td>' +
+                '<td><input name="Regions[' + rowNo + '].Allocation" id="Regions' + rowNo + 'Allocation" /></td>' +
+                '<td><input name="Regions[' + rowNo + '].RetailCommissionAmount" id="Regions' + rowNo + 'RetailCommissionAmount" /></td>' +
+                '</tr>';
+            jurisdictions.append(template);
+        });
+        jurisdictions.on('click', '.remove', function (e) {
+            $(this).closest('tr').remove();
+        });
+    </script>
+}
+
+```
+

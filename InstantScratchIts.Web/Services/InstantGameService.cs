@@ -42,7 +42,7 @@ namespace InstantScratchIts.Web.Services
                     GameNo = x.GameNo,
                     Name = x.Name,
                     TicketAmount = x.TicketAmount,
-                    Jurisdictions = x.Jurisdiction
+                    Jurisdictions = x.Jurisdictions
                     .Select(region => new InstantGameDetailViewModel.Region
                     {
                         Name = region.Name,
@@ -83,6 +83,14 @@ namespace InstantScratchIts.Web.Services
 
             game.IsDeleted = true;
             _context.SaveChanges();
+        }
+
+        public int CreateInstantGame(CreateInstantGameCommand cmd)
+        {
+            var game = cmd.ToInstantGame();
+            _context.Add(game);
+            _context.SaveChanges();
+            return game.InstantGameId;
         }
     }
 }

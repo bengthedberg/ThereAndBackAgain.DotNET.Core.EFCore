@@ -12,7 +12,7 @@ namespace InstantScratchIts.Web.Data
         
         public bool IsDeleted { get; set; }
 
-        public ICollection<Jurisdiction> Jurisdiction { get; set; }
+        public ICollection<Jurisdiction> Jurisdictions { get; set; }
     
     }
 }
